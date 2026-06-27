@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Breadcrumb from "@/components/Breadcrumb";
 import Gallery from "@/components/Gallery";
 import { formatContent } from "@/lib/markdown";
 import { readCollection } from "@/lib/storage";
@@ -31,159 +30,175 @@ export default async function EventDetailPage({ params }: Props) {
 
   return (
     <>
-      <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
+      <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
         <Image
           src={event.heroImage}
           alt={event.title}
-          width={1920}
-          height={900}
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
+          priority
         />
-      </div>
-
-      <Breadcrumb
-        crumbs={[
-          { label: "Home", href: "/" },
-          { label: "Events", href: "/event" },
-          { label: event.category, href: `/event?type=${event.category.toLowerCase().replace(/\s+/g, "-")}` },
-          { label: event.title },
-        ]}
-      />
-
-      <div className="container-site py-8">
-        <div className="text-sm text-zinc-600 mb-2">
-          {event.startDate} &ndash; {event.endDate} &middot; {event.location}
+        <div
+          className="absolute inset-0 z-10 flex flex-col justify-end pb-12 md:pb-16"
+          style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))" }}
+        >
+          <div className="container-site w-full">
+            <div className="flex items-center gap-2 text-sm text-white/70 mb-4">
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
+              <span className="text-white/40">›</span>
+              <Link href="/event" className="hover:text-white transition-colors">Events</Link>
+              <span className="text-white/40">›</span>
+              <span className="text-white">{event.category}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/80 mb-3">
+              <span className="flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                {event.startDate} &ndash; {event.endDate}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                {event.location}
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+              {event.title}
+            </h1>
+          </div>
         </div>
+      </section>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-zinc-900">
-          {event.title}
-        </h1>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          <div className="lg:col-span-2 space-y-8">
+      <div className="container-site py-8 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="lg:col-span-2 space-y-10">
             {event.highlightTitle && (
-              <div>
-                <h2 className="text-xl font-bold text-zinc-900 mb-3">Festival Highlight</h2>
-                <p className="text-zinc-700 leading-relaxed">{event.highlightTitle}</p>
-              </div>
+              <section>
+                <span className="text-xs text-primary font-semibold uppercase tracking-wider">Festival Highlight</span>
+                <h2 className="text-2xl font-bold text-zinc-900 mt-2">{event.highlightTitle}</h2>
+              </section>
             )}
 
-            <div>
-              <h2 className="text-xl font-bold text-zinc-900 mb-3">About</h2>
+            {event.description && (
               <div
                 className="text-zinc-700 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: formatContent(event.description) }}
               />
-            </div>
+            )}
 
             {event.whyPeopleLoveIt && (
-              <div className="bg-zinc-50 rounded-lg p-6">
-                <h2 className="text-xl font-bold text-zinc-900 mb-3">Why People Love It</h2>
+              <section className="bg-amber-50 rounded-xl p-6 border border-amber-200">
+                <h3 className="text-lg font-bold text-zinc-900 mb-2">Why People Love It</h3>
                 <p className="text-zinc-700 leading-relaxed">{event.whyPeopleLoveIt}</p>
-              </div>
+              </section>
             )}
 
             {event.tipsForVisitors.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-zinc-900 mb-3">Tips for Visitors</h2>
-                <ul className="space-y-1.5">
+              <section>
+                <h3 className="text-xl font-bold text-zinc-900 mb-3">Tips for Visitors</h3>
+                <div className="text-zinc-700 leading-relaxed space-y-1">
                   {event.tipsForVisitors.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-2 text-zinc-700 text-sm">
-                      <span className="text-primary mt-0.5">•</span>
+                    <p key={i} className="flex items-start gap-2">
+                      <span className="text-primary mt-1 shrink-0">•</span>
                       {tip}
-                    </li>
+                    </p>
                   ))}
-                </ul>
-              </div>
+                </div>
+              </section>
             )}
 
             {event.tags.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-zinc-900 mb-3">Tags</h2>
-                <div className="flex flex-wrap gap-2">
-                  {event.tags.map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/event?tag=${tag.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="text-sm text-zinc-600 bg-zinc-100 hover:bg-zinc-200 px-3 py-1 rounded-full transition-colors"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {event.images.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-zinc-900 mb-3">Event Gallery</h2>
-                <Gallery images={event.images} />
+              <div className="flex flex-wrap gap-2">
+                {event.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/event?tag=${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="text-sm text-zinc-600 bg-zinc-100 hover:bg-zinc-200 px-3 py-1 rounded-full transition-colors"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
               </div>
             )}
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-24 bg-zinc-50 rounded-lg border border-zinc-200 p-6 space-y-4">
-              <h2 className="text-lg font-bold text-zinc-900">Event Details</h2>
+          <aside className="lg:col-span-1">
+            <div className="lg:sticky lg:top-24 space-y-5">
+              {event.images.length > 0 && (
+                <section className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+                  <div className="p-4 pb-0">
+                    <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">Event Gallery</h3>
+                  </div>
+                  <Gallery images={event.images} variant="sidebar" />
+                </section>
+              )}
 
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Category</div>
-                <div className="text-sm font-medium text-zinc-900">{event.category}</div>
-              </div>
-
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">When</div>
-                <div className="text-sm font-medium text-zinc-900">
-                  {event.startDate} &ndash; {event.endDate}
+              <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+                <div className="p-5">
+                  <h3 className="text-sm font-bold text-zinc-900 mb-4 uppercase tracking-wider">Event Details</h3>
+                  <div className="space-y-0">
+                    <InfoRow label="Category" value={event.category} />
+                    <InfoRow label="When" value={`${event.startDate} – ${event.endDate}`} />
+                    <InfoRow label="Area" value={event.area} />
+                    <InfoRow label="Prefecture" value={event.prefecture} />
+                    {event.nearestStation && <InfoRow label="Nearest Station" value={event.nearestStation} />}
+                    <InfoRow label="Admission" value={event.admission} chip />
+                    <InfoRow label="Best For" value={event.bestFor} />
+                    <InfoRow label="Good For" value={event.goodFor} />
+                    {event.officialSite && (
+                      <div className="flex items-center justify-between py-3 border-b border-zinc-100 last:border-b-0">
+                        <span className="text-xs text-zinc-500 uppercase tracking-wider">Official Site</span>
+                        <a
+                          href={event.officialSite}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary font-medium hover:underline text-right"
+                        >
+                          Visit website &rarr;
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Area</div>
-                <div className="text-sm font-medium text-zinc-900">{event.area}</div>
-              </div>
-
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Prefecture</div>
-                <div className="text-sm font-medium text-zinc-900">{event.prefecture}</div>
               </div>
 
               {event.nearestStation && (
-                <div>
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider">Nearest Station</div>
-                  <div className="text-sm font-medium text-zinc-900">{event.nearestStation}</div>
+                <div className="rounded-xl overflow-hidden border border-zinc-200 aspect-[4/3]">
+                  <iframe
+                    src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240!2d139.75!3d35.7!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzXCsDQyJzAwLjAiTiAxMznCsDQ1JzAwLjAiRQ!5e0!3m2!1sen!2sjp!4v1!5m2!1sen!2sjp&q=${encodeURIComponent(event.nearestStation)}}`}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={`Map showing ${event.nearestStation}`}
+                  />
                 </div>
               )}
-
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Admission</div>
-                <div className="text-sm font-medium text-green-700">{event.admission}</div>
-              </div>
-
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Best For</div>
-                <div className="text-sm font-medium text-zinc-900">{event.bestFor}</div>
-              </div>
-
-              <div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Good For</div>
-                <div className="text-sm font-medium text-zinc-900">{event.goodFor}</div>
-              </div>
-
-              {event.officialSite && (
-                <a
-                  href={event.officialSite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-primary text-sm font-semibold hover:underline"
-                >
-                  Visit website &rarr;
-                </a>
-              )}
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </>
+  );
+}
+
+function InfoRow({ label, value, chip }: { label: string; value: string; chip?: boolean }) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-zinc-100 last:border-b-0">
+      <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+      {chip ? (
+        <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">{value}</span>
+      ) : (
+        <span className="text-sm text-zinc-900 text-right max-w-[60%]">{value}</span>
+      )}
+    </div>
   );
 }

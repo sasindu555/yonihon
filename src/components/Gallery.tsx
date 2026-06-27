@@ -3,7 +3,12 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function Gallery({ images }: { images: string[] }) {
+interface GalleryProps {
+  images: string[];
+  variant?: "default" | "sidebar";
+}
+
+export default function Gallery({ images, variant = "default" }: GalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -11,7 +16,7 @@ export default function Gallery({ images }: { images: string[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className={variant === "sidebar" ? "grid grid-cols-2 gap-1" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"}>
         {images.map((img, i) => (
           <button
             key={i}
@@ -19,13 +24,13 @@ export default function Gallery({ images }: { images: string[] }) {
               setCurrentIndex(i);
               setLightboxOpen(true);
             }}
-            className="aspect-square rounded-lg overflow-hidden relative"
+            className={variant === "sidebar" ? "aspect-[4/3] overflow-hidden relative" : "aspect-square rounded-lg overflow-hidden relative"}
           >
             <Image
               src={img}
               alt={`Gallery image ${i + 1}`}
               fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              sizes={variant === "sidebar" ? "50vw" : "(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"}
               className="object-cover hover:scale-105 transition-transform duration-300"
             />
           </button>
