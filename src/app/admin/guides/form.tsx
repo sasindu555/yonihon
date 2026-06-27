@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminSession } from "@/lib/use-session";
+import RichTextEditor from "@/components/RichTextEditor";
 interface Props { id?: string }
 
 const emptyGuide: Record<string, unknown> = {
@@ -133,9 +134,9 @@ export default function GuideForm({ id }: Props) {
         </div>
       </Section>
 
-      <Section title="Content (Markdown)">
+      <Section title="Content">
         <div className="md:col-span-2">
-          <textarea value={form.content as string} onChange={(e) => set("content", e.target.value)} className={`${inputClass} font-mono text-xs`} rows={20} />
+          <RichTextEditor value={form.content as string} onChange={(v) => set("content", v)} placeholder="Start writing..." />
         </div>
       </Section>
       </div>

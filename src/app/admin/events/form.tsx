@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminSession } from "@/lib/use-session";
+import RichTextEditor from "@/components/RichTextEditor";
 interface Props { id?: string }
 
 const emptyEvent: Record<string, unknown> = {
@@ -108,7 +109,7 @@ export default function EventForm({ id }: Props) {
         </div>
         <div className="md:col-span-2">
           <Label>Description</Label>
-          <textarea value={form.description as string} onChange={(e) => set("description", e.target.value)} className={inputClass} rows={6} />
+          <RichTextEditor value={form.description as string} onChange={(v) => set("description", v)} placeholder="Describe the event..." />
         </div>
       </Section>
 

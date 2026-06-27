@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import Gallery from "@/components/Gallery";
+import { formatContent } from "@/lib/markdown";
 import { events } from "@/lib/data";
 import type { Metadata } from "next";
 
@@ -66,9 +67,10 @@ export default async function EventDetailPage({ params }: Props) {
 
             <div>
               <h2 className="text-xl font-bold text-zinc-900 mb-3">About</h2>
-              <div className="text-zinc-700 leading-relaxed whitespace-pre-line">
-                {event.description}
-              </div>
+              <div
+                className="text-zinc-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: formatContent(event.description) }}
+              />
             </div>
 
             {event.whyPeopleLoveIt && (

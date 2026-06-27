@@ -4,6 +4,7 @@ import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import SearchInput from "@/components/SearchInput";
 import ArticleCard from "@/components/ArticleCard";
+import { formatContent } from "@/lib/markdown";
 import { guides, guideCategories } from "@/lib/data";
 import type { Metadata } from "next";
 
@@ -19,49 +20,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: guide.title,
     description: guide.excerpt,
   };
-}
-
-function formatContent(content: string) {
-  const lines = content.split("\n");
-  const html: string[] = [];
-  let inList = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ")) {
-      if (inList) { html.push("</ul>"); inList = false; }
-      const text = line.replace("## ", "");
-      const anchor = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      html.push(`<h2 id="${anchor}" class="text-xl font-bold text-zinc-900 mt-8 mb-3">${text}</h2>`);
-    } else if (line.startsWith("**") && line.endsWith("**")) {
-      if (inList) { html.push("</ul>"); inList = false; }
-      html.push(`<p class="text-zinc-700 leading-relaxed mb-4">${line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</p>`);
-    } else if (line.startsWith("- **")) {
-      if (!inList) { html.push('<ul class="space-y-1.5 mb-4">'); inList = true; }
-      const processed = line
-        .replace(/^- \*\*(.*?):\*\*/g, '<li class="flex items-start gap-2 text-zinc-700"><span class="text-primary mt-1 shrink-0">•</span><strong>$1:</strong>')
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-      html.push(`${processed}</li>`);
-    } else if (line.startsWith("- ")) {
-      if (!inList) { html.push('<ul class="space-y-1.5 mb-4">'); inList = true; }
-      const processed = line.replace(/^- /, '<li class="flex items-start gap-2 text-zinc-700"><span class="text-zinc-400 mt-1 shrink-0">•</span>');
-      html.push(`${processed}</li>`);
-    } else if (line.trim() === "") {
-      if (inList) { html.push("</ul>"); inList = false; }
-    } else if (line.startsWith("#")) {
-      if (inList) { html.push("</ul>"); inList = false; }
-      const text = line.replace(/^#+ /, "");
-      if (text.length > 0) {
-        html.push(`<p class="text-zinc-700 leading-relaxed mb-4">${text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</p>`);
-      }
-    } else {
-      if (inList) { html.push("</ul>"); inList = false; }
-      if (line.trim().length > 0) {
-        html.push(`<p class="text-zinc-700 leading-relaxed mb-4">${line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</p>`);
-      }
-    }
-  }
-  if (inList) html.push("</ul>");
-  return html.join("\n");
 }
 
 export default async function GuideDetailPage({ params }: Props) {
