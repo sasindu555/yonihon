@@ -3,9 +3,12 @@ import Hero from "@/components/Hero";
 import StatBand from "@/components/StatBand";
 import SearchInput from "@/components/SearchInput";
 import EventCard from "@/components/EventCard";
-import { events, destinations, eventTypes } from "@/lib/data";
+import { readCollection } from "@/lib/storage";
+import { destinations, eventTypes } from "@/lib/data";
+import type { Event } from "@/lib/types";
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  const events = readCollection<Event>("events");
   return (
     <>
       <Hero

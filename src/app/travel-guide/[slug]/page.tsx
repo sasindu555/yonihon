@@ -5,7 +5,8 @@ import Breadcrumb from "@/components/Breadcrumb";
 import SearchInput from "@/components/SearchInput";
 import ArticleCard from "@/components/ArticleCard";
 import { formatContent } from "@/lib/markdown";
-import { guides, guideCategories } from "@/lib/data";
+import { readCollection } from "@/lib/storage";
+import type { Guide, GuideCategory } from "@/lib/types";
 import type { Metadata } from "next";
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const guides = readCollection<Guide>("guides");
   const guide = guides.find((g) => g.slug === slug);
   if (!guide) return { title: "Guide Not Found" };
   return {
@@ -24,9 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GuideDetailPage({ params }: Props) {
   const { slug } = await params;
+  const guides = readCollection<Guide>("guides");
   const guide = guides.find((g) => g.slug === slug);
   if (!guide) notFound();
 
+  const guideCategories = readCollection<GuideCategory>("guideCategories");
   const relatedGuides = guides.filter((g) => g.slug !== slug).slice(0, 2);
 
   return (

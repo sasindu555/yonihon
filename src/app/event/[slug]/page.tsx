@@ -4,7 +4,8 @@ import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import Gallery from "@/components/Gallery";
 import { formatContent } from "@/lib/markdown";
-import { events } from "@/lib/data";
+import { readCollection } from "@/lib/storage";
+import type { Event } from "@/lib/types";
 import type { Metadata } from "next";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const events = readCollection<Event>("events");
   const event = events.find((e) => e.slug === slug);
   if (!event) return { title: "Event Not Found" };
   return {
@@ -23,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params;
+  const events = readCollection<Event>("events");
   const event = events.find((e) => e.slug === slug);
   if (!event) notFound();
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminSession } from "@/lib/use-session";
 import RichTextEditor from "@/components/RichTextEditor";
+import ImageUploader from "@/components/ImageUploader";
 interface Props { id?: string }
 
 const emptyEvent: Record<string, unknown> = {
@@ -161,12 +162,15 @@ export default function EventForm({ id }: Props) {
 
       <Section title="Content">
         <div className="md:col-span-2">
-          <Label>Hero Image URL</Label>
-          <input value={form.heroImage as string} onChange={(e) => set("heroImage", e.target.value)} className={inputClass} />
+          <Label>Hero Image</Label>
+          <ImageUploader value={form.heroImage as string} onChange={(v) => set("heroImage", v)} label="Hero Image" />
         </div>
         <div className="md:col-span-2">
-          <Label>Gallery Images (one per line)</Label>
-          <textarea value={(form.images as string[]).join("\n")} onChange={(e) => set("images", e.target.value.split("\n"))} className={inputClass} rows={3} />
+          <Label>Event Gallery</Label>
+          <GalleryUploader
+            images={form.images as string[]}
+            onChange={(v) => set("images", v)}
+          />
         </div>
         <div className="md:col-span-2">
           <Label>Highlight Title</Label>
@@ -187,6 +191,97 @@ export default function EventForm({ id }: Props) {
       </Section>
       </div>
     </form>
+  );
+}
+
+function GalleryUploader({
+  images,
+  onChange,
+}: {
+  images: string[];
+  onChange: (images: string[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) {
+        const err = await res.json();
+        setError(err.error || "Upload failed");
+        return;
+      }
+      const data = await res.json();
+      onChange([...images, data.url]);
+    } catch (e) {
+      console.error("Upload error:", e);
+      setError("Upload failed");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  function remove(idx: number) {
+    onChange(images.filter((_, i) => i !== idx));
+    setFailedImages((prev) => { const next = new Set(prev); next.delete(idx); return next; });
+  }
+
+  return (
+    <div className="space-y-3">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+        onChange={handleUpload}
+        className="hidden"
+      />
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {images.map((url, i) => (
+            <div key={i} className="relative group rounded-lg overflow-hidden border border-zinc-200">
+              {failedImages.has(i) ? (
+                <div className="w-full h-24 bg-zinc-50 flex items-center justify-center">
+                  <span className="text-xs text-zinc-400">Failed to load</span>
+                </div>
+              ) : (
+                <img
+                  src={url}
+                  alt=""
+                  className="w-full h-24 object-cover bg-zinc-100"
+                  onError={() => setFailedImages((prev) => { const next = new Set(prev); next.add(i); return next; })}
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="absolute top-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        className="text-sm border border-dashed border-zinc-300 rounded-lg px-3 py-2 text-zinc-500 hover:bg-zinc-50 disabled:opacity-50 transition-colors w-full"
+      >
+        {uploading ? "Uploading..." : "+ Add Image"}
+      </button>
+      {error && <p className="text-xs text-red-600">{error}</p>}
+    </div>
   );
 }
 

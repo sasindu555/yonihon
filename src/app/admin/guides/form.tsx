@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminSession } from "@/lib/use-session";
 import RichTextEditor from "@/components/RichTextEditor";
+import ImageUploader from "@/components/ImageUploader";
 interface Props { id?: string }
 
 const emptyGuide: Record<string, unknown> = {
@@ -122,9 +123,9 @@ export default function GuideForm({ id }: Props) {
           <Label>Read Time</Label>
           <input value={form.readTime as string} onChange={(e) => set("readTime", e.target.value)} className={inputClass} placeholder="e.g. 10 min read" />
         </div>
-        <div>
-          <Label>Image URL</Label>
-          <input value={form.image as string} onChange={(e) => set("image", e.target.value)} className={inputClass} />
+        <div className="md:col-span-2">
+          <Label>Image</Label>
+          <ImageUploader value={form.image as string} onChange={(v) => set("image", v)} label="Guide Image" />
         </div>
         <div>
           <label className="flex items-center gap-2 text-sm">

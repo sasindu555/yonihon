@@ -2,9 +2,12 @@ import Hero from "@/components/Hero";
 import StatBand from "@/components/StatBand";
 import SearchInput from "@/components/SearchInput";
 import ExperienceCard from "@/components/ExperienceCard";
-import { experiences, destinations, experienceCategories } from "@/lib/data";
+import { readCollection } from "@/lib/storage";
+import { destinations, experienceCategories } from "@/lib/data";
+import type { Experience } from "@/lib/types";
 
-export default function ExperiencesPage() {
+export default async function ExperiencesPage() {
+  const experiences = readCollection<Experience>("experiences");
   return (
     <>
       <Hero

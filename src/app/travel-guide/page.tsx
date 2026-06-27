@@ -3,9 +3,12 @@ import Hero from "@/components/Hero";
 import SearchInput from "@/components/SearchInput";
 import ArticleCard from "@/components/ArticleCard";
 import NewsletterForm from "@/components/NewsletterForm";
-import { guides, guideCategories, popularTags } from "@/lib/data";
+import { readCollection } from "@/lib/storage";
+import { guideCategories, popularTags } from "@/lib/data";
+import type { Guide } from "@/lib/types";
 
-export default function TravelGuidePage() {
+export default async function TravelGuidePage() {
+  const guides = readCollection<Guide>("guides");
   const featuredGuides = guides.filter((g) => g.featured);
 
   return (

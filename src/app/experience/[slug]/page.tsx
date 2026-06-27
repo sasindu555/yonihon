@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import Gallery from "@/components/Gallery";
 import BookingForm from "@/components/BookingForm";
-import { experiences } from "@/lib/data";
+import { readCollection } from "@/lib/storage";
+import type { Experience } from "@/lib/types";
 import type { Metadata } from "next";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const experiences = readCollection<Experience>("experiences");
   const experience = experiences.find((e) => e.slug === slug);
   if (!experience) return { title: "Experience Not Found" };
   return {
@@ -22,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ExperienceDetailPage({ params }: Props) {
   const { slug } = await params;
+  const experiences = readCollection<Experience>("experiences");
   const experience = experiences.find((e) => e.slug === slug);
 
   if (!experience) notFound();
