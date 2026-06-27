@@ -51,10 +51,12 @@ src/
 │   │   └── [slug]/page.tsx     # Single experience + booking
 │   ├── travel-guide/
 │   │   ├── page.tsx            # Guide archive + categories
-│   │   └── [slug]/page.tsx     # Single guide article
+│   │   ├── [slug]/page.tsx     # Single guide article
+│   │   └── category/[slug]/page.tsx  # Guides filtered by category
 │   ├── event/
 │   │   ├── page.tsx            # Events archive + filters
-│   │   └── [slug]/page.tsx     # Single event detail
+│   │   ├── [slug]/page.tsx     # Single event detail
+│   │   └── tag/[slug]/page.tsx # Events filtered by tag
 │   ├── admin/                  # Admin panel (role-based access)
 │   │   ├── layout.tsx          # Admin layout + sidebar nav
 │   │   ├── page.tsx            # Dashboard
@@ -131,10 +133,12 @@ src/
 | `/` | Static | Homepage with hero, trust bar, featured content |
 | `/experience` | Static | Experience catalog with filters |
 | `/experience/[slug]` | Dynamic | Single experience detail + booking |
-| `/travel-guide` | Static | Travel guide archive with categories |
+| `/travel-guide` | Dynamic | Travel guide archive with categories |
 | `/travel-guide/[slug]` | Dynamic | Single guide article |
-| `/event` | Static | Events archive with filters |
+| `/travel-guide/category/[slug]` | Dynamic | Guide category archive |
+| `/event` | Dynamic | Events archive with filters |
 | `/event/[slug]` | Dynamic | Single event detail |
+| `/event/tag/[slug]` | Dynamic | Event tag archive |
 | `/about` | Static | About page |
 | `/partners` | Static | Partners page with signup form |
 | `/contact` | Static | Contact page with form |
@@ -179,6 +183,7 @@ All admin routes require authentication via the `yonihon_admin` session cookie. 
 | GET/PUT/DELETE | `/api/events/[id]` | PUT/DELETE: editor+ | Read / update / delete event |
 | GET/POST | `/api/guides` | POST: editor+ | List / create guides |
 | GET/PUT/DELETE | `/api/guides/[id]` | PUT/DELETE: editor+ | Read / update / delete guide |
+| POST | `/api/upload` | editor+ | Upload image to `public/uploads/` |
 | GET/POST/PUT/DELETE | `/api/destinations` | Write: editor+ | Manage destinations |
 | GET/POST/PUT/DELETE | `/api/categories` | Write: editor+ | Manage guide categories |
 
@@ -209,12 +214,12 @@ Role gates are enforced at three layers:
 
 | Type | Fields | Source File |
 |---|---|---|
-| **Experience** | title, slug, description, duration, price, location, images, meetingPoint, cancellationPolicy, host, etc. | `src/lib/data.ts:experiences` |
-| **Event** | title, slug, excerpt, description, dates, location, category, tags, admission, etc. | `src/lib/data.ts:events` |
-| **Guide** | title, slug, content (markdown), category, author, date, readTime, etc. | `src/lib/data.ts:guides` |
-| **Destination** | name, slug | `src/lib/data.ts:destinations` |
-| **GuideCategory** | name, slug, icon, article count | `src/lib/data.ts:guideCategories` |
-| **AdminUser** | id, name, email, password, role, active, createdAt, lastLogin | `src/lib/seed-users.ts` |
+| **Experience** | title, slug, description, duration, price, location, images, meetingPoint, cancellationPolicy, host, etc. | `data-files/experiences.json` (seed: `data.ts`) |
+| **Event** | title, slug, excerpt, description, dates, location, category, tags, admission, gallery, etc. | `data-files/events.json` (seed: `data.ts`) |
+| **Guide** | title, slug, heroImage, content (markdown), category, author, date, readTime, etc. | `data-files/guides.json` (seed: `data.ts`) |
+| **Destination** | name, slug | `data-files/destinations.json` (seed: `data.ts`) |
+| **GuideCategory** | name, slug, icon, article count | `data-files/guideCategories.json` (seed: `data.ts`) |
+| **AdminUser** | id, name, email, password, role, active, createdAt, lastLogin | `data-files/users.json` (seed: `seed-users.ts`) |
 
 Content is persisted to `src/lib/data-files/*.json`. On first read, seed data is copied from `src/lib/data.ts` into the JSON files.
 
@@ -240,7 +245,10 @@ Content is persisted to `src/lib/data-files/*.json`. On first read, seed data is
 - **NewsletterForm** — Email input + subscribe button
 
 ### Media Components
-- **Gallery** — Image grid with lightbox modal, prev/next navigation
+- **Gallery** — Image grid with lightbox modal, prev/next navigation; supports `sidebar` variant
+- **ImageUploader** — File picker with preview, remove, view link, upload progress; used in admin forms
+- **RichTextEditor** — TipTap WYSIWYG toolbar (bold/italic/strike/H2/H3/lists/blockquote), stores as Markdown
+- **SearchInput** — Search field with icon, used in travel guide sidebar
 
 ## Customization
 
@@ -261,7 +269,10 @@ External image domains are whitelisted in `next.config.ts`:
 - `images.unsplash.com` — Stock photography
 - `yonihon.com` — WordPress media library
 
-Add or modify `remotePatterns` in `next.config.ts` to use other image sources.
+Uploaded images are served from `/uploads/` (stored in `public/uploads/`). `next/image` can serve them
+without additional configuration because they are local to the origin.
+
+Add or modify `remotePatterns` in `next.config.ts` to use other external image sources.
 
 ## Adding Content
 
@@ -271,7 +282,7 @@ Navigate to `/admin` and log in with your email and password. Use the sidebar to
 
 - **Experiences** — Create/edit/delete with full form (title, description, price, images, itinerary, etc.)
 - **Events** — Create/edit/delete with date, location, category, tags, gallery
-- **Travel Guides** — Create/edit/delete with markdown content, category, metadata
+- **Travel Guides** — Create/edit/delete with markdown content (WYSIWYG editor), category, metadata, hero image upload
 - **Destinations** — Add/remove location values used in filters
 - **Categories** — Add/remove guide categories with icons
 - **Users** — Create/edit/delete admin accounts (super_admin only)
