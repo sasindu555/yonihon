@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import Hero from "@/components/Hero";
 import SearchInput from "@/components/SearchInput";
 import ArticleCard from "@/components/ArticleCard";
@@ -7,7 +8,15 @@ import { readCollection } from "@/lib/storage";
 import { guideCategories, popularTags } from "@/lib/data";
 import type { Guide } from "@/lib/types";
 
-export default async function TravelGuidePage() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function TravelGuidePage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  if (params.category && typeof params.category === "string") {
+    redirect(`/travel-guide/category/${params.category}`);
+  }
   const guides = readCollection<Guide>("guides");
   const featuredGuides = guides.filter((g) => g.featured);
 
