@@ -48,7 +48,7 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
       </Link>
       <div className="p-4">
         <Link
-          href={`/travel-guide?category=${article.categorySlug}`}
+          href={`/travel-guide/category/${article.categorySlug}`}
           className="text-xs text-primary font-medium hover:underline"
         >
           {article.category}

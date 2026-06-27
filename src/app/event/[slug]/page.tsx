@@ -118,7 +118,7 @@ export default async function EventDetailPage({ params }: Props) {
                 {event.tags.map((tag) => (
                   <Link
                     key={tag}
-                    href={`/event?tag=${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                    href={`/event/tag/${tag.toLowerCase().replace(/\s+/g, "-")}`}
                     className="text-sm text-zinc-600 bg-zinc-100 hover:bg-zinc-200 px-3 py-1 rounded-full transition-colors"
                   >
                     #{tag}

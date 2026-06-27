@@ -31,7 +31,7 @@ export default async function TravelGuidePage() {
             {guideCategories.map((cat) => (
               <Link
                 key={cat.slug}
-                href={`/travel-guide?category=${cat.slug}`}
+                href={`/travel-guide/category/${cat.slug}`}
                 className="bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg p-4 text-center transition-colors"
               >
                 <span className="text-2xl block mb-1">{cat.icon}</span>

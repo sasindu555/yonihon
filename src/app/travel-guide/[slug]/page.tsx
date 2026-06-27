@@ -40,7 +40,7 @@ export default async function GuideDetailPage({ params }: Props) {
         crumbs={[
           { label: "Home", href: "/" },
           { label: "Travel Guide", href: "/travel-guide" },
-          { label: guide.category, href: `/travel-guide?category=${guide.categorySlug}` },
+          { label: guide.category, href: `/travel-guide/category/${guide.categorySlug}` },
           { label: guide.title },
         ]}
       />
@@ -48,7 +48,7 @@ export default async function GuideDetailPage({ params }: Props) {
       <section className="bg-white border-b border-zinc-100">
         <div className="container-site py-8 md:py-12">
           <Link
-            href={`/travel-guide?category=${guide.categorySlug}`}
+            href={`/travel-guide/category/${guide.categorySlug}`}
             className="inline-block bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-4 hover:bg-primary/20 transition-colors"
           >
             {guide.category}
@@ -153,7 +153,7 @@ export default async function GuideDetailPage({ params }: Props) {
                   {guideCategories.map((cat) => (
                     <li key={cat.slug}>
                       <Link
-                        href={`/travel-guide?category=${cat.slug}`}
+                        href={`/travel-guide/category/${cat.slug}`}
                         className="flex items-center justify-between text-sm text-zinc-600 hover:text-primary transition-colors"
                       >
                         <span>{cat.name}</span>
