@@ -46,7 +46,7 @@ export default function GuideForm({ id }: Props) {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/guides/${id}`).then((r) => r.json()).then((d) => { setForm(d); setLoading(false); });
+    fetch(`/api/guides/${id}`).then((r) => r.json()).then((d) => { setForm(d as Record<string, unknown>); setLoading(false); });
   }, [id]);
 
   function set<K extends keyof typeof emptyGuide>(key: K, value: (typeof emptyGuide)[K]) {

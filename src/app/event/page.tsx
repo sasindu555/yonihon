@@ -4,9 +4,10 @@ import Hero from "@/components/Hero";
 import StatBand from "@/components/StatBand";
 import SearchInput from "@/components/SearchInput";
 import EventCard from "@/components/EventCard";
-import { readCollection } from "@/lib/storage";
+import { getEvents } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 import { destinations, eventTypes } from "@/lib/data";
-import type { Event } from "@/lib/types";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -17,7 +18,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
   if (params.tag && typeof params.tag === "string") {
     redirect(`/event/tag/${params.tag}`);
   }
-  const events = readCollection<Event>("events");
+  const events = await getEvents();
   return (
     <>
       <Hero

@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import Gallery from "@/components/Gallery";
 import BookingForm from "@/components/BookingForm";
-import { readCollection } from "@/lib/storage";
-import type { Experience } from "@/lib/types";
+import { getExperiences } from "@/lib/db";
 import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -13,20 +14,16 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const experiences = readCollection<Experience>("experiences");
+  const experiences = await getExperiences();
   const experience = experiences.find((e) => e.slug === slug);
   if (!experience) return { title: "Experience Not Found" };
-  return {
-    title: experience.title,
-    description: experience.shortDescription,
-  };
+  return { title: experience.title, description: experience.shortDescription };
 }
 
 export default async function ExperienceDetailPage({ params }: Props) {
   const { slug } = await params;
-  const experiences = readCollection<Experience>("experiences");
+  const experiences = await getExperiences();
   const experience = experiences.find((e) => e.slug === slug);
-
   if (!experience) notFound();
 
   return (
@@ -132,9 +129,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 {experience.itinerary.map((item, i) => (
                   <div key={i} className="mb-4">
                     <h3 className="font-semibold text-zinc-900">{item.title}</h3>
-                    <p className="text-zinc-700 text-sm mt-1 leading-relaxed">
-                      {item.description}
-                    </p>
+                    <p className="text-zinc-700 text-sm mt-1 leading-relaxed">{item.description}</p>
                   </div>
                 ))}
               </div>

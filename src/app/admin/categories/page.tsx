@@ -16,7 +16,7 @@ export default function AdminCategoriesPage() {
   function load() {
     fetch("/api/categories")
       .then((r) => r.json())
-      .then((data) => { setItems(data); setLoading(false); });
+      .then((data) => { setItems(data as GuideCategory[]); setLoading(false); });
   }
 
   useEffect(() => { load(); }, []);

@@ -44,7 +44,7 @@ export default function EventForm({ id }: Props) {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/events/${id}`).then((r) => r.json()).then((d) => { setForm(d); setLoading(false); });
+      fetch(`/api/events/${id}`).then((r) => r.json()).then((d) => { setForm(d as Record<string, unknown>); setLoading(false); });
   }, [id]);
 
   function set<K extends keyof typeof emptyEvent>(key: K, value: (typeof emptyEvent)[K]) {
@@ -216,11 +216,11 @@ function GalleryUploader({
       fd.set("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) {
-        const err = await res.json();
+        const err: Record<string, string> = await res.json();
         setError(err.error || "Upload failed");
         return;
       }
-      const data = await res.json();
+      const data: { url: string } = await res.json();
       onChange([...images, data.url]);
     } catch (e) {
       console.error("Upload error:", e);

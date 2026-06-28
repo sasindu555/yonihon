@@ -16,7 +16,7 @@ export default function AdminEventsPage() {
   function load() {
     fetch("/api/events")
       .then((r) => r.json())
-      .then((data) => { setItems(data); setLoading(false); });
+      .then((data) => { setItems(data as Event[]); setLoading(false); });
   }
 
   useEffect(() => { load(); }, []);

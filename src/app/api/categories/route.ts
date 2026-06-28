@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/storage";
+import { getGuideCategories, createGuideCategory, replaceGuideCategories, deleteGuideCategories } from "@/lib/db";
 import { getSession, hasAccess } from "@/lib/admin-auth";
 import type { GuideCategory } from "@/lib/types";
 
 export async function GET() {
-  const data = readCollection<GuideCategory>("guideCategories");
+  const data = await getGuideCategories();
   return NextResponse.json(data);
 }
 
@@ -13,11 +13,9 @@ export async function POST(request: Request) {
   if (!hasAccess(session, ["super_admin", "editor"])) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const body = await request.json();
-  const data = readCollection<GuideCategory>("guideCategories");
-  data.push(body);
-  writeCollection("guideCategories", data);
-  return NextResponse.json(body, { status: 201 });
+  const body: GuideCategory = await request.json();
+  const created = await createGuideCategory(body);
+  return NextResponse.json(created, { status: 201 });
 }
 
 export async function PUT(request: Request) {
@@ -25,8 +23,8 @@ export async function PUT(request: Request) {
   if (!hasAccess(session, ["super_admin", "editor"])) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const body = await request.json();
-  writeCollection("guideCategories", body);
+  const body: GuideCategory[] = await request.json();
+  await replaceGuideCategories(body);
   return NextResponse.json(body);
 }
 
@@ -36,8 +34,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const slugs: string[] = await request.json();
-  const data = readCollection<GuideCategory>("guideCategories");
-  const filtered = data.filter((c) => !slugs.includes(c.slug));
-  writeCollection("guideCategories", filtered);
+  await deleteGuideCategories(slugs);
   return NextResponse.json({ success: true });
 }

@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/storage";
+import { getEvents, createEvent } from "@/lib/db";
 import { getSession, hasAccess } from "@/lib/admin-auth";
-import type { Event } from "@/lib/types";
 
 export async function GET() {
-  const data = readCollection<Event>("events");
+  const data = await getEvents();
   return NextResponse.json(data);
 }
 
@@ -13,10 +12,7 @@ export async function POST(request: Request) {
   if (!hasAccess(session, ["super_admin", "editor"])) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const body = await request.json();
-  const data = readCollection<Event>("events");
-  const newItem: Event = { ...body, id: String(Date.now()) };
-  data.push(newItem);
-  writeCollection("events", data);
+  const body = (await request.json()) as any;
+  const newItem = await createEvent(body);
   return NextResponse.json(newItem, { status: 201 });
 }

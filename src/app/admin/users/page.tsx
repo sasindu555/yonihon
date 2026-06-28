@@ -22,7 +22,7 @@ export default function AdminUsersPage() {
   function load() {
     fetch("/api/users")
       .then((r) => r.json())
-      .then((data) => { setUsers(data); setLoading(false); });
+      .then((data) => { setUsers(data as UserRow[]); setLoading(false); });
   }
 
   useEffect(() => { load(); }, []);
@@ -46,7 +46,7 @@ export default function AdminUsersPage() {
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      const data = await res.json();
+      const data: { error?: string } = await res.json();
       alert(data.error || "Failed to save");
       return;
     }

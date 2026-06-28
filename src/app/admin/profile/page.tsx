@@ -44,7 +44,7 @@ export default function ProfilePage() {
       setConfirmPassword("");
       router.refresh();
     } else {
-      const data = await res.json();
+      const data: { error?: string } = await res.json();
       setMessage({ type: "error", text: data.error || "Failed to update" });
     }
   }

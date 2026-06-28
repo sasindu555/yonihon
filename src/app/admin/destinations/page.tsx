@@ -15,7 +15,7 @@ export default function AdminDestinationsPage() {
   function load() {
     fetch("/api/destinations")
       .then((r) => r.json())
-      .then((data) => { setItems(data); setLoading(false); });
+      .then((data) => { setItems(data as Destination[]); setLoading(false); });
   }
 
   useEffect(() => { load(); }, []);

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { loginUser } from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  const { email, password } = (await request.json()) as { email: string; password: string };
   if (!email || !password) {
     return NextResponse.json({ error: "Email and password required" }, { status: 400 });
   }

@@ -1,29 +1,27 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/storage";
+import { getUser, updateUser } from "@/lib/db";
 import { hashPassword } from "@/lib/hash";
 import { getSession } from "@/lib/admin-auth";
-import type { AdminUser } from "@/lib/types";
 
 export async function PUT(request: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const body = await request.json();
-  const users = readCollection<AdminUser>("users");
-  const index = users.findIndex((u) => u.id === session.id);
-  if (index === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const body = (await request.json()) as any;
+  const user = await getUser(session.id);
+  if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const updates: Record<string, unknown> = {};
   if (body.currentPassword) {
-    if (hashPassword(body.currentPassword) !== users[index].password) {
+    const currentHashed = await hashPassword(body.currentPassword);
+    if (currentHashed !== user.password) {
       return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 });
     }
     if (body.newPassword) {
-      users[index].password = hashPassword(body.newPassword);
+      updates.password = await hashPassword(body.newPassword);
     }
   }
-  if (body.name) {
-    users[index].name = body.name;
-  }
-  writeCollection("users", users);
+  if (body.name) updates.name = body.name;
+  await updateUser(session.id, updates as Parameters<typeof updateUser>[1]);
   return NextResponse.json({ success: true });
 }

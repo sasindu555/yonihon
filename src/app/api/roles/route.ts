@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/storage";
+import { getRoles, updateRoles } from "@/lib/db";
 import { getSession, hasPermission } from "@/lib/session";
 import { ALL_PERMISSIONS } from "@/lib/permissions";
 import type { RoleDefinition } from "@/lib/permissions";
@@ -9,7 +9,7 @@ export async function GET() {
   if (!hasPermission(session, "users:read")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const roles = readCollection<RoleDefinition>("roles");
+  const roles = await getRoles();
   return NextResponse.json({ roles, allPermissions: ALL_PERMISSIONS });
 }
 
@@ -18,12 +18,7 @@ export async function PUT(request: Request) {
   if (!hasPermission(session, "users:write")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const body = await request.json();
-  const existing = readCollection<RoleDefinition>("roles");
-  const updated = existing.map((r) => {
-    const incoming = body.find((b: RoleDefinition) => b.role === r.role);
-    return incoming ? { ...r, permissions: incoming.permissions } : r;
-  });
-  writeCollection("roles", updated);
+  const body: RoleDefinition[] = await request.json();
+  await updateRoles(body);
   return NextResponse.json({ success: true });
 }

@@ -25,11 +25,11 @@ export default function ImageUploader({ value, onChange, label = "Image" }: Prop
       formData.set("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) {
-        const err = await res.json();
+        const err: { error?: string } = await res.json();
         setError(err.error || "Upload failed");
         return;
       }
-      const data = await res.json();
+      const data: { url: string } = await res.json();
       setImgError(false);
       onChange(data.url);
     } catch (e) {

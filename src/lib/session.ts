@@ -9,12 +9,24 @@ export function serializeSession(user: AdminUser, permissions: string[]): string
     role: user.role,
     permissions,
   };
-  return Buffer.from(JSON.stringify(session)).toString("base64");
+  const enc = new TextEncoder();
+  const bytes = enc.encode(JSON.stringify(session));
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 export function deserializeSession(raw: string): Session | null {
   try {
-    return JSON.parse(Buffer.from(raw, "base64").toString("utf-8"));
+    const binary = atob(raw);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const dec = new TextDecoder();
+    return JSON.parse(dec.decode(bytes));
   } catch {
     return null;
   }

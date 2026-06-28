@@ -22,8 +22,9 @@ export default function AdminRolesPage() {
     fetch("/api/roles")
       .then((r) => r.json())
       .then((data) => {
-        setRoles(data.roles);
-        setAllPermissions(data.allPermissions);
+        const d = data as { roles: RoleEntry[]; allPermissions: Record<string, string> };
+        setRoles(d.roles);
+        setAllPermissions(d.allPermissions);
         setLoading(false);
       });
   }

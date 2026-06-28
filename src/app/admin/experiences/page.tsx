@@ -16,7 +16,7 @@ export default function AdminExperiencesPage() {
   function load() {
     fetch("/api/experiences")
       .then((r) => r.json())
-      .then((data) => { setItems(data); setLoading(false); });
+      .then((data) => { setItems(data as Experience[]); setLoading(false); });
   }
 
   useEffect(() => { load(); }, []);

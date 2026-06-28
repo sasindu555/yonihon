@@ -5,9 +5,16 @@ import ExperienceCard from "@/components/ExperienceCard";
 import EventCard from "@/components/EventCard";
 import ArticleCard from "@/components/ArticleCard";
 import WhyYonihon from "@/components/WhyYonihon";
-import { experiences, events, guides } from "@/lib/data";
+import { getExperiences, getEvents, getGuides } from "@/lib/db";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const [experiences, events, guides] = await Promise.all([
+    getExperiences(),
+    getEvents(),
+    getGuides(),
+  ]);
   const featuredExperiences = experiences.filter((e) => e.featured);
   const upcomingEvents = events.slice(0, 3);
   const latestGuides = guides.slice(0, 3);
@@ -42,32 +49,16 @@ export default function HomePage() {
           <div className="container-site">
             <div className="flex items-end justify-between mb-8">
               <div>
-                <p className="text-sm font-semibold text-primary uppercase tracking-wider">
-                  Featured
-                </p>
-                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mt-1">
-                  Handpicked Just for You
-                </h2>
+                <p className="text-sm font-semibold text-primary uppercase tracking-wider">Featured</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mt-1">Handpicked Just for You</h2>
               </div>
-              <Link
-                href="/experience"
-                className="text-sm font-semibold text-primary hover:underline hidden sm:block"
-              >
-                View all
-              </Link>
+              <Link href="/experience" className="text-sm font-semibold text-primary hover:underline hidden sm:block">View all</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredExperiences.map((exp) => (
-                <ExperienceCard key={exp.id} experience={exp} />
-              ))}
+              {featuredExperiences.map((exp) => <ExperienceCard key={exp.id} experience={exp} />)}
             </div>
             <div className="mt-6 text-center sm:hidden">
-              <Link
-                href="/experience"
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                View all experiences
-              </Link>
+              <Link href="/experience" className="text-sm font-semibold text-primary hover:underline">View all experiences</Link>
             </div>
           </div>
         </section>
@@ -78,24 +69,13 @@ export default function HomePage() {
           <div className="container-site">
             <div className="flex items-end justify-between mb-8">
               <div>
-                <p className="text-sm font-semibold text-primary uppercase tracking-wider">
-                  This Season
-                </p>
-                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mt-1">
-                  Japan Festivals & Seasonal Highlights
-                </h2>
+                <p className="text-sm font-semibold text-primary uppercase tracking-wider">This Season</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mt-1">Japan Festivals & Seasonal Highlights</h2>
               </div>
-              <Link
-                href="/event"
-                className="text-sm font-semibold text-primary hover:underline hidden sm:block"
-              >
-                See all events
-              </Link>
+              <Link href="/event" className="text-sm font-semibold text-primary hover:underline hidden sm:block">See all events</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingEvents.map((evt) => (
-                <EventCard key={evt.id} event={evt} />
-              ))}
+              {upcomingEvents.map((evt) => <EventCard key={evt.id} event={evt} />)}
             </div>
           </div>
         </section>
@@ -108,24 +88,13 @@ export default function HomePage() {
           <div className="container-site">
             <div className="flex items-end justify-between mb-8">
               <div>
-                <p className="text-sm font-semibold text-primary uppercase tracking-wider">
-                  Travel Guide
-                </p>
-                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mt-1">
-                  Tips, Inspiration & Local Insights
-                </h2>
+                <p className="text-sm font-semibold text-primary uppercase tracking-wider">Travel Guide</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mt-1">Tips, Inspiration & Local Insights</h2>
               </div>
-              <Link
-                href="/travel-guide"
-                className="text-sm font-semibold text-primary hover:underline hidden sm:block"
-              >
-                Read all guides
-              </Link>
+              <Link href="/travel-guide" className="text-sm font-semibold text-primary hover:underline hidden sm:block">Read all guides</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {latestGuides.map((guide) => (
-                <ArticleCard key={guide.id} article={guide} />
-              ))}
+              {latestGuides.map((guide) => <ArticleCard key={guide.id} article={guide} />)}
             </div>
           </div>
         </section>
@@ -136,27 +105,13 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             <div className="text-center md:text-left">
               <h3 className="text-2xl font-bold">Are You a Workshop Owner in Japan?</h3>
-              <p className="text-zinc-400 mt-2 text-sm">
-                List your workshop on YoNihon and reach international travelers.
-              </p>
-              <Link
-                href="/partners"
-                className="inline-block mt-4 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded text-sm font-semibold transition-colors"
-              >
-                Become a Partner
-              </Link>
+              <p className="text-zinc-400 mt-2 text-sm">List your workshop on YoNihon and reach international travelers.</p>
+              <Link href="/partners" className="inline-block mt-4 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded text-sm font-semibold transition-colors">Become a Partner</Link>
             </div>
             <div className="text-center md:text-left">
               <h3 className="text-2xl font-bold">Ready to Explore Japan?</h3>
-              <p className="text-zinc-400 mt-2 text-sm">
-                Browse handcrafted experiences and start planning your trip.
-              </p>
-              <Link
-                href="/experience"
-                className="inline-block mt-4 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded text-sm font-semibold transition-colors"
-              >
-                Browse Experiences
-              </Link>
+              <p className="text-zinc-400 mt-2 text-sm">Browse handcrafted experiences and start planning your trip.</p>
+              <Link href="/experience" className="inline-block mt-4 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded text-sm font-semibold transition-colors">Browse Experiences</Link>
             </div>
           </div>
         </div>

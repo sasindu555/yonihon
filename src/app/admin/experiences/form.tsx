@@ -49,7 +49,7 @@ export default function ExperienceForm({ id }: Props) {
     if (!id) return;
     fetch(`/api/experiences/${id}`)
       .then((r) => r.json())
-      .then((data) => { setForm(data); setLoading(false); });
+      .then((data) => { setForm(data as Record<string, unknown>); setLoading(false); });
   }, [id]);
 
   function set<K extends keyof typeof emptyForm>(key: K, value: (typeof emptyForm)[K]) {

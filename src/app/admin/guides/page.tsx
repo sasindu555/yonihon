@@ -16,7 +16,7 @@ export default function AdminGuidesPage() {
   function load() {
     fetch("/api/guides")
       .then((r) => r.json())
-      .then((data) => { setItems(data); setLoading(false); });
+      .then((data) => { setItems(data as Guide[]); setLoading(false); });
   }
 
   useEffect(() => { load(); }, []);

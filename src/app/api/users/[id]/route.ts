@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/storage";
+import { getUser, getUsers, updateUser, deleteUser, getUserByEmail } from "@/lib/db";
 import { hashPassword } from "@/lib/hash";
 import { getSession, hasAccess } from "@/lib/admin-auth";
-import type { AdminUser } from "@/lib/types";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -14,10 +13,8 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const { id } = await params;
-  const users = readCollection<AdminUser>("users");
-  const user = users.find((u) => u.id === id);
+  const user = await getUser(id);
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _pw, ...safe } = user;
   return NextResponse.json(safe);
 }
@@ -28,28 +25,24 @@ export async function PUT(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const { id } = await params;
-  const body = await request.json();
-  const users = readCollection<AdminUser>("users");
-  const index = users.findIndex((u) => u.id === id);
-  if (index === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (body.email && body.email !== users[index].email) {
-    if (users.some((u) => u.email === body.email && u.id !== id)) {
+  const body = (await request.json()) as any;
+  const user = await getUser(id);
+  if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (body.email && body.email !== user.email) {
+    const existing = await getUserByEmail(body.email);
+    if (existing && existing.id !== id) {
       return NextResponse.json({ error: "Email already exists" }, { status: 409 });
     }
   }
-  users[index] = {
-    ...users[index],
-    name: body.name ?? users[index].name,
-    email: body.email ?? users[index].email,
-    role: body.role ?? users[index].role,
-    active: body.active ?? users[index].active,
-  };
-  if (body.password) {
-    users[index].password = hashPassword(body.password);
-  }
-  writeCollection("users", users);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: _pw, ...safe } = users[index];
+  const updates: Record<string, unknown> = {};
+  if (body.name !== undefined) updates.name = body.name;
+  if (body.email !== undefined) updates.email = body.email;
+  if (body.role !== undefined) updates.role = body.role;
+  if (body.active !== undefined) updates.active = body.active;
+  if (body.password) updates.password = await hashPassword(body.password);
+  const updated = await updateUser(id, updates as Parameters<typeof updateUser>[1]);
+  if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const { password: _pw, ...safe } = updated;
   return NextResponse.json(safe);
 }
 
@@ -59,11 +52,7 @@ export async function DELETE(_request: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const { id } = await params;
-  const users = readCollection<AdminUser>("users");
-  const filtered = users.filter((u) => u.id !== id);
-  if (filtered.length === users.length) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-  writeCollection("users", filtered);
+  const ok = await deleteUser(id);
+  if (!ok) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ success: true });
 }
